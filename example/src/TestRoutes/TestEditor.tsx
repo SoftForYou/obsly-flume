@@ -1,7 +1,7 @@
 import React from "react";
 import "normalize.css";
 
-import { Controls, FlumeConfig, NodeEditor } from "node-editor";
+import { Controls, FlumeConfig, NodeEditor } from "flume";
 
 const Log = console.log;
 
