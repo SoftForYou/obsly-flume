@@ -8,7 +8,7 @@ import {
   RootEngine,
   useRootEngine,
   NodeMap
-} from "node-editor";
+} from "flume";
 
 const colors = [
   "#2196f3",
