@@ -4,6 +4,13 @@
 
 # Flume
 
+## Fork warnings
+
+- This is a fork of the original Flume library by [chrisjpatty](https://github.com/chrisjpatty). Thanks for the great library!
+- This fork is not maintained by the original author.
+- This fork is not guaranteed to be up to date.
+- We'll try to improve the functionality while maintaining the compatibility with the original library, but we can't guarantee it.
+
 ## Guides & Examples
 
 [flume.dev](https://flume.dev)
@@ -23,7 +30,7 @@ Import `FlumeConfig` and use it to define the nodes and ports that will make up 
 ```jsx
 import { FlumeConfig, Controls, Colors } from "flume";
 
-const flumeConfig = new FlumeConfig()
+const flumeConfig = new FlumeConfig();
 
 flumeConfig
   .addPortType({
@@ -42,25 +49,19 @@ flumeConfig
     type: "number",
     label: "Number",
     initialWidth: 150,
-    inputs: ports => [
-      ports.number()
-    ],
-    outputs: ports => [
-      ports.number()
-    ]
+    inputs: ports => [ports.number()],
+    outputs: ports => [ports.number()]
   })
   .addNodeType({
     type: "addNumbers",
     label: "Add Numbers",
     initialWidth: 150,
     inputs: ports => [
-      ports.number({name: "num1"}),
-      ports.number({name: "num2"})
+      ports.number({ name: "num1" }),
+      ports.number({ name: "num2" })
     ],
-    outputs: ports => [
-      ports.number({name: "result"})
-    ]
-  })
+    outputs: ports => [ports.number({ name: "result" })]
+  });
 ```
 
 ### Rendering the node editor
@@ -68,21 +69,19 @@ flumeConfig
 To render the node editor, import `NodeEditor` and pass it your nodeTypes and portTypes from the configuration you created.
 
 ```jsx
-import React from 'react'
-import { NodeEditor } from 'flume'
-import config from './config'
+import React from "react";
+import { NodeEditor } from "flume";
+import config from "./config";
 
 const App = () => {
-
   return (
-    <div style={{width: 600, height: 800}}> // Give the wrapper a width & height
-      <NodeEditor
-        nodeTypes={config.nodeTypes}
-        portTypes={config.portTypes}
-      />
+    <div style={{ width: 600, height: 800 }}>
+      {" "}
+      // Give the wrapper a width & height
+      <NodeEditor nodeTypes={config.nodeTypes} portTypes={config.portTypes} />
     </div>
-  )
-}
+  );
+};
 ```
 
 For more complete documentation visit: [flume.dev](https://flume.dev)
@@ -90,3 +89,4 @@ For more complete documentation visit: [flume.dev](https://flume.dev)
 ## License
 
 MIT © [chrisjpatty](https://github.com/chrisjpatty)
+MIT © [Soft For You](https://github.com/SoftForYou) (forked from chrisjpatty - modified by Soft For You)
