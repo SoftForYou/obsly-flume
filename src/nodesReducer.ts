@@ -1,10 +1,11 @@
+import { nanoid } from "nanoid/non-secure";
 import { RefObject } from "react";
+import FlumeCache from "./Cache";
 import {
   deleteConnection,
   deleteConnectionsByNodeId
 } from "./connectionCalculator";
-import { checkForCircularNodes } from "./utilities";
-import { nanoid } from "nanoid/non-secure";
+import { ToastAction, ToastActionTypes } from "./toastsReducer";
 import {
   CircularBehavior,
   Connection,
@@ -20,8 +21,7 @@ import {
   TransputType,
   ValueSetter
 } from "./types";
-import FlumeCache from "./Cache";
-import { ToastAction, ToastActionTypes } from "./toastsReducer";
+import { checkForCircularNodes } from "./utilities";
 
 export enum NodesActionType {
   ADD_CONNECTION = "ADD_CONNECTION",
@@ -29,12 +29,18 @@ export enum NodesActionType {
   DESTROY_TRANSPUT = "DESTROY_TRANSPUT",
   ADD_NODE = "ADD_NODE",
   REMOVE_NODE = "REMOVE_NODE",
+  DUPLICATE_NODE = "DUPLICATE_NODE",
   HYDRATE_DEFAULT_NODES = "HYDRATE_DEFAULT_NODES",
   SET_PORT_DATA = "SET_PORT_DATA",
   SET_NODE_COORDINATES = "SET_NODE_COORDINATES"
 }
 
-const addConnection = (nodes: NodeMap, input: ProposedConnection, output: ProposedConnection, portTypes: PortTypeMap) => {
+const addConnection = (
+  nodes: NodeMap,
+  input: ProposedConnection,
+  output: ProposedConnection,
+  portTypes: PortTypeMap
+) => {
   const newNodes = {
     ...nodes,
     [input.nodeId]: {
@@ -74,7 +80,11 @@ const addConnection = (nodes: NodeMap, input: ProposedConnection, output: Propos
   return newNodes;
 };
 
-const removeConnection = (nodes: NodeMap, input: ProposedConnection, output: ProposedConnection) => {
+const removeConnection = (
+  nodes: NodeMap,
+  input: ProposedConnection,
+  output: ProposedConnection
+) => {
   const inputNode = nodes[input.nodeId];
   const {
     [input.portName]: removedInputPort,
@@ -113,13 +123,16 @@ const removeConnection = (nodes: NodeMap, input: ProposedConnection, output: Pro
 };
 
 const getFilteredTransputs = (transputs: ConnectionMap, nodeId: string) =>
-  Object.entries(transputs).reduce<{ [key: string]: Connection[] }>((obj, [portName, transput]) => {
-    const newTransputs = transput.filter(t => t.nodeId !== nodeId);
-    if (newTransputs.length) {
-      obj[portName] = newTransputs;
-    }
-    return obj;
-  }, {});
+  Object.entries(transputs).reduce<{ [key: string]: Connection[] }>(
+    (obj, [portName, transput]) => {
+      const newTransputs = transput.filter(t => t.nodeId !== nodeId);
+      if (newTransputs.length) {
+        obj[portName] = newTransputs;
+      }
+      return obj;
+    },
+    {}
+  );
 
 const removeConnections = (connections: Connections, nodeId: string) => ({
   inputs: getFilteredTransputs(connections.inputs, nodeId),
@@ -197,19 +210,22 @@ const reconcileNodes = (
   );
 
   // Reconcile node attributes for each node
-  reconciledNodes = Object.values(reconciledNodes).reduce<NodeMap>((nodesObj, node) => {
-    let newNode = { ...node };
-    const nodeType = nodeTypes[node.type];
-    if (nodeType.root !== node.root) {
-      if (nodeType.root && !node.root) {
-        newNode.root = nodeType.root;
-      } else if (!nodeType.root && node.root) {
-        delete newNode.root;
+  reconciledNodes = Object.values(reconciledNodes).reduce<NodeMap>(
+    (nodesObj, node) => {
+      let newNode = { ...node };
+      const nodeType = nodeTypes[node.type];
+      if (nodeType.root !== node.root) {
+        if (nodeType.root && !node.root) {
+          newNode.root = nodeType.root;
+        } else if (!nodeType.root && node.root) {
+          delete newNode.root;
+        }
       }
-    }
-    nodesObj[node.id] = newNode;
-    return nodesObj;
-  }, {});
+      nodesObj[node.id] = newNode;
+      return nodesObj;
+    },
+    {}
+  );
 
   return reconciledNodes;
 };
@@ -286,44 +302,48 @@ type ProposedConnection = { nodeId: string; portName: string };
 
 export type NodesAction =
   | {
-    type: NodesActionType.ADD_CONNECTION | NodesActionType.REMOVE_CONNECTION;
-    input: ProposedConnection;
-    output: ProposedConnection;
-  }
+      type: NodesActionType.ADD_CONNECTION | NodesActionType.REMOVE_CONNECTION;
+      input: ProposedConnection;
+      output: ProposedConnection;
+    }
   | {
-    type: NodesActionType.DESTROY_TRANSPUT;
-    transput: ProposedConnection;
-    transputType: TransputType;
-  }
+      type: NodesActionType.DESTROY_TRANSPUT;
+      transput: ProposedConnection;
+      transputType: TransputType;
+    }
   | {
-    type: NodesActionType.ADD_NODE;
-    nodeType: string;
-    x: number;
-    y: number;
-    id?: string;
-    defaultNode?: boolean;
-  }
+      type: NodesActionType.ADD_NODE;
+      nodeType: string;
+      x: number;
+      y: number;
+      id?: string;
+      defaultNode?: boolean;
+    }
   | {
-    type: NodesActionType.REMOVE_NODE;
-    nodeId: string;
-  }
+      type: NodesActionType.REMOVE_NODE;
+      nodeId: string;
+    }
   | {
-    type: NodesActionType.HYDRATE_DEFAULT_NODES;
-  }
+      type: NodesActionType.DUPLICATE_NODE;
+      nodeId: string;
+    }
   | {
-    type: NodesActionType.SET_PORT_DATA;
-    nodeId: string;
-    portName: string;
-    controlName: string;
-    data: any;
-    setValue?: ValueSetter;
-  }
+      type: NodesActionType.HYDRATE_DEFAULT_NODES;
+    }
   | {
-    type: NodesActionType.SET_NODE_COORDINATES;
-    x: number;
-    y: number;
-    nodeId: string;
-  };
+      type: NodesActionType.SET_PORT_DATA;
+      nodeId: string;
+      portName: string;
+      controlName: string;
+      data: any;
+      setValue?: ValueSetter;
+    }
+  | {
+      type: NodesActionType.SET_NODE_COORDINATES;
+      x: number;
+      y: number;
+      nodeId: string;
+    };
 
 interface FlumeEnvironment {
   nodeTypes: NodeTypeMap;
@@ -442,6 +462,27 @@ const nodesReducer = (
       return removeNode(nodes, nodeId);
     }
 
+    case NodesActionType.DUPLICATE_NODE: {
+      const { nodeId } = action;
+      const sourceNode = nodes[nodeId];
+      const newNodeId = nanoid(10);
+
+      // Create new node with offset position
+      // ? Should we remove connections?
+      const newNode: FlumeNode = {
+        ...sourceNode,
+        id: newNodeId,
+        x: sourceNode.x + 50,
+        y: sourceNode.y + 50,
+        defaultNode: false // Ensure duplicated nodes are not marked as default
+      };
+
+      return {
+        ...nodes,
+        [newNodeId]: newNode
+      };
+    }
+
     case NodesActionType.HYDRATE_DEFAULT_NODES: {
       const newNodes = { ...nodes };
       for (const key in newNodes) {
@@ -498,6 +539,6 @@ export const connectNodesReducer = (
   environment: FlumeEnvironment,
   dispatchToasts: React.Dispatch<React.SetStateAction<ToastAction | undefined>>
 ) => (state: NodeMap, action: NodesAction) =>
-    reducer(state, action, environment, dispatchToasts);
+  reducer(state, action, environment, dispatchToasts);
 
 export default nodesReducer;

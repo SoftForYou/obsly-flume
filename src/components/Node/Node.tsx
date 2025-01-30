@@ -1,16 +1,13 @@
 import React, { HTMLProps } from "react";
-import styles from "./Node.css";
-import {
-  NodeTypesContext,
-  NodeDispatchContext,
-  StageContext,
-  CacheContext
-} from "../../context";
-import { getPortRect, calculateCurve } from "../../connectionCalculator";
 import { Portal } from "react-portal";
-import ContextMenu from "../ContextMenu/ContextMenu";
-import IoPorts from "../IoPorts/IoPorts";
-import Draggable from "../Draggable/Draggable";
+import { calculateCurve, getPortRect } from "../../connectionCalculator";
+import {
+  CacheContext,
+  NodeDispatchContext,
+  NodeTypesContext,
+  StageContext
+} from "../../context";
+import { NodesActionType } from "../../nodesReducer";
 import {
   ConnectionMap,
   Connections,
@@ -19,7 +16,10 @@ import {
   NodeHeaderRenderCallback,
   SelectOption
 } from "../../types";
-import { NodesActionType } from "../../nodesReducer";
+import ContextMenu from "../ContextMenu/ContextMenu";
+import Draggable from "../Draggable/Draggable";
+import IoPorts from "../IoPorts/IoPorts";
+import styles from "./Node.css";
 
 interface NodeProps {
   id: string;
@@ -34,6 +34,14 @@ interface NodeProps {
   renderNodeHeader?: NodeHeaderRenderCallback;
   root?: boolean;
 }
+
+const DEFAULT_MENU_OPTIONS = [
+  {
+    label: "Duplicate Node",
+    value: "duplicateNode",
+    description: "Duplicates a node."
+  }
+];
 
 const Node = ({
   id,
@@ -184,10 +192,20 @@ const Node = ({
     });
   };
 
+  const duplicateNode = () => {
+    nodesDispatch?.({
+      type: NodesActionType.DUPLICATE_NODE,
+      nodeId: id
+    });
+  };
+
   const handleMenuOption = ({ value }: SelectOption) => {
     switch (value) {
       case "deleteNode":
         deleteNode();
+        break;
+      case "duplicateNode":
+        duplicateNode();
         break;
       default:
         return;
@@ -236,6 +254,7 @@ const Node = ({
             x={menuCoordinates.x}
             y={menuCoordinates.y}
             options={[
+              ...DEFAULT_MENU_OPTIONS,
               ...(deletable !== false
                 ? [
                   {
