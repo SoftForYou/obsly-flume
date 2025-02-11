@@ -154,20 +154,23 @@ export const Colors = {
 export const getPortBuilders = (ports: {
   [portType: string]: PortType;
 }): { [portType: string]: PortTypeBuilder } =>
-  Object.values(ports).reduce<{ [portType: string]: PortTypeBuilder }>((obj, port) => {
-    obj[port.type] = (config: Partial<PortType> = {}) => {
-      return {
-        type: port.type,
-        name: config.name || port.name,
-        label: config.label || port.label,
-        noControls: !!define(config.noControls, false),
-        color: config.color || port.color,
-        hidePort: !!define(config.hidePort, port.hidePort),
-        controls: define(config.controls, port.controls) ?? []
+  Object.values(ports).reduce<{ [portType: string]: PortTypeBuilder }>(
+    (obj, port) => {
+      obj[port.type] = (config: Partial<PortType> = {}) => {
+        return {
+          type: port.type,
+          name: config.name || port.name,
+          label: config.label || port.label,
+          noControls: !!define(config.noControls, false),
+          color: config.color || port.color,
+          hidePort: !!define(config.hidePort, port.hidePort),
+          controls: define(config.controls, port.controls) ?? []
+        };
       };
-    };
-    return obj;
-  }, {});
+      return obj;
+    },
+    {}
+  );
 
 export class FlumeConfig {
   nodeTypes: { [nodeType: string]: NodeType };
@@ -190,7 +193,8 @@ export class FlumeConfig {
       ...config,
       root: true,
       addable: false,
-      deletable: false
+      deletable: false,
+      duplicable: false
     });
     return this;
   }
@@ -223,7 +227,8 @@ export class FlumeConfig {
       label: define(config.label, ""),
       description: define(config.description, ""),
       addable: define(config.addable, true),
-      deletable: define(config.deletable, true)
+      deletable: define(config.deletable, true),
+      duplicable: define(config.duplicable, true)
     };
     if (config.initialWidth) {
       node.initialWidth = config.initialWidth;
