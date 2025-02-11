@@ -186,6 +186,12 @@ export interface NodeType {
    * @defaultValue true
    */
   deletable: boolean;
+  /**
+   * If false the node may not be able to duplicate.
+   *
+   * @defaultValue true
+   */
+  duplicable: boolean;
   inputs: PortType[] | TransputBuilder;
   outputs: PortType[] | TransputBuilder;
   initialWidth?: number;
