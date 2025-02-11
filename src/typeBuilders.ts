@@ -1,7 +1,5 @@
 import { CheckboxControl } from "./../dist/types.d";
 import {
-  Colors as ColorsType,
-  Control,
   CustomControl,
   GenericControl,
   MultiselectControl,
@@ -191,7 +189,8 @@ export class FlumeConfig {
       ...config,
       root: true,
       addable: false,
-      deletable: false
+      deletable: false,
+      duplicable: false
     });
     return this;
   }
@@ -224,7 +223,8 @@ export class FlumeConfig {
       label: define(config.label, ""),
       description: define(config.description, ""),
       addable: define(config.addable, true),
-      deletable: define(config.deletable, true)
+      deletable: define(config.deletable, true),
+      duplicable: define(config.duplicable, true)
     };
     if (config.initialWidth) {
       node.initialWidth = config.initialWidth;

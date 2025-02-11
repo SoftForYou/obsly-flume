@@ -1,4 +1,4 @@
-import React, { HTMLProps } from "react";
+import React, { HTMLProps, useMemo } from "react";
 import { Portal } from "react-portal";
 import { calculateCurve, getPortRect } from "../../connectionCalculator";
 import {
@@ -35,14 +35,6 @@ interface NodeProps {
   root?: boolean;
 }
 
-const DEFAULT_MENU_OPTIONS = [
-  {
-    label: "Duplicate Node",
-    value: "duplicateNode",
-    description: "Duplicates a node."
-  }
-];
-
 const Node = ({
   id,
   width,
@@ -64,7 +56,13 @@ const Node = ({
     translate: { x: 0, y: 0 }
   };
   const currentNodeType = nodeTypes[type];
-  const { label, deletable, inputs = [], outputs = [] } = currentNodeType;
+  const {
+    label,
+    deletable,
+    duplicable,
+    inputs = [],
+    outputs = []
+  } = currentNodeType;
 
   const nodeWrapper = React.useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -211,6 +209,28 @@ const Node = ({
     }
   };
 
+  const menuOptions = useMemo(() => {
+    const options: SelectOption[] = [];
+
+    if (deletable !== false) {
+      options.push({
+        label: "Duplicate Node",
+        value: "duplicateNode",
+        description: "Duplicates a node."
+      });
+    }
+
+    if (duplicable !== false) {
+      options.push({
+        label: "Delete Node",
+        value: "deleteNode",
+        description: "Deletes a node and all of its connections."
+      });
+    }
+
+    return options;
+  }, [deletable, duplicable]);
+
   return (
     <Draggable
       className={styles.wrapper}
@@ -252,18 +272,7 @@ const Node = ({
           <ContextMenu
             x={menuCoordinates.x}
             y={menuCoordinates.y}
-            options={[
-              ...DEFAULT_MENU_OPTIONS,
-              ...(deletable !== false
-                ? [
-                    {
-                      label: "Delete Node",
-                      value: "deleteNode",
-                      description: "Deletes a node and all of its connections."
-                    }
-                  ]
-                : [])
-            ]}
+            options={menuOptions}
             onRequestClose={closeContextMenu}
             onOptionSelected={handleMenuOption}
             hideFilter
