@@ -1,8 +1,19 @@
-import React from "react";
-import styles from "./ContextMenu.css";
 import clamp from "lodash/clamp";
 import { nanoid } from "nanoid/non-secure";
+import React from "react";
 import { SelectOption } from "../../types";
+import styles from "./ContextMenu.css";
+
+const getTextContent = (node: React.ReactNode): string => {
+  if (!node) return "";
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(getTextContent).join("");
+  if (React.isValidElement(node)) {
+    return getTextContent(node.props.children);
+  }
+  return "";
+};
 
 interface ContextMenuProps {
   x: number;
@@ -92,7 +103,10 @@ const ContextMenu = ({
   const filteredOptions = React.useMemo(() => {
     if (!filter) return options;
     const lowerFilter = filter.toLowerCase();
-    return options.filter(opt => opt.label.toLowerCase().includes(lowerFilter));
+    return options.filter(opt => {
+      const labelText = getTextContent(opt.label);
+      return labelText.toLowerCase().includes(lowerFilter);
+    });
   }, [filter, options]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
