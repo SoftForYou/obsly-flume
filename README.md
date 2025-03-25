@@ -11,6 +11,11 @@
 - This fork is not guaranteed to be up to date.
 - We'll try to improve the functionality while maintaining the compatibility with the original library, but we can't guarantee it.
 
+## Changes
+
+- Be able to **duplicate your nodes**.
+- Be able to use **React components** in the `label` prop of the node. Before it worked but at filtering the app crashed. Now it will try to extract the text content of the node to filter the context menu.
+
 ## Guides & Examples
 
 [flume.dev](https://flume.dev)
