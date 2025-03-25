@@ -216,7 +216,7 @@ const Node = ({
   const menuOptions = useMemo(() => {
     const options: SelectOption[] = [];
 
-    if (deletable !== false) {
+    if (duplicable !== false) {
       options.push({
         label: "Duplicate Node",
         value: "duplicateNode",
@@ -224,7 +224,7 @@ const Node = ({
       });
     }
 
-    if (duplicable !== false) {
+    if (deletable !== false) {
       options.push({
         label: "Delete Node",
         value: "deleteNode",
