@@ -112,6 +112,12 @@ const Comment = ({
           id
         });
         break;
+      case "duplicateComment":
+        dispatch({
+          type: CommentActionTypes.DUPLICATE_COMMENT,
+          id
+        })
+        break;
       default:
     }
   };
@@ -227,6 +233,11 @@ const Comment = ({
                 value: "delete",
                 label: "Delete Comment",
                 description: "Delete the comment"
+              },
+              {
+                value: "duplicateComment",
+                label: "Duplicate Comment",
+                description: "Duplicates the comment"
               }
             ]}
             onRequestClose={closeContextMenu}

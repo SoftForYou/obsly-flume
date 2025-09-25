@@ -10,7 +10,8 @@ export enum CommentActionTypes {
   SET_COMMENT_DIMENSIONS = "SET_COMMENT_DIMENSIONS",
   SET_COMMENT_TEXT = "SET_COMMENT_TEXT",
   SET_COMMENT_COLOR = "SET_COMMENT_COLOR",
-  DELETE_COMMENT = "DELETE_COMMENT"
+  DELETE_COMMENT = "DELETE_COMMENT",
+  DUPLICATE_COMMENT = 'DUPLICATE_COMMENT'
 }
 
 export type CommentAction =
@@ -47,6 +48,10 @@ export type CommentAction =
   }
   | {
     type: CommentActionTypes.DELETE_COMMENT;
+    id: string;
+  }
+  | {
+    type: CommentActionTypes.DUPLICATE_COMMENT;
     id: string;
   };
 
@@ -113,6 +118,26 @@ const commentsReducer: React.Reducer<CommentMap, CommentAction> = (
       const { [action.id]: toDelete, ...newComments } = comments;
       return newComments as CommentMap;
     }
+    case CommentActionTypes.DUPLICATE_COMMENT: {
+      const { id } = action;
+      const sourceComment = comments[id];
+      const newCommentId = nanoid(10);
+
+      const newComment: FlumeComment = {
+        ...sourceComment,
+        id: newCommentId,
+        x: sourceComment.x + 20,
+        y: sourceComment.y + 20,
+      };
+
+      return {
+        ...comments,
+        [newCommentId]: newComment
+      };
+
+      return comments
+    }
+
     default:
       return comments;
   }
