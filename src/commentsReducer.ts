@@ -134,10 +134,7 @@ const commentsReducer: React.Reducer<CommentMap, CommentAction> = (
         ...comments,
         [newCommentId]: newComment
       };
-
-      return comments
     }
-
     default:
       return comments;
   }
